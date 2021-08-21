@@ -2,6 +2,7 @@
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 #Include, JSON.ahk
+#Include, utils.ahk
 
 ; setup ui
 Gui, Color, Aqua
@@ -9,23 +10,34 @@ Gui, Font, q5
 Gui, Font, s15 Bold Underline
 Gui, Add, Text, x10 y5 +Center, Weather For:
 Gui, Font, s12 Norm
-Gui, Add, Edit, x145 y6 w175 +ReadOnly +Left vWeatherDate, %WeatherDate%
-Gui, Add, Picture, x160 y50 w150 h150 vImageLocation, %ImageLocation%
-Gui, Font, s20 Norm
-Gui, Add, Edit, x10 y50 w80 +ReadOnly +Center vWeatherF, %WeatherF%
-Gui, Font, s10 Norm
-Gui, Add, Edit, x95 y65 w40 +ReadOnly +Center vWeatherC, %WeatherC%
-Gui, Font, s12 Norm
-Gui, Add, Edit, x155 y205 w160 +ReadOnly +Center vWeatherCondition, %WeatherCondition%
-Gui, Add, Button, x10 y250 gPrevious, Previous
-Gui, Add, Button, x270 y250 gNext, Next
+Gui, Add, Edit, x145 y5 w175 +ReadOnly +Left vWeatherDate, %WeatherDate%
+Gui, Add, Picture, x194 y80 w123 h123 vImageLocation, %ImageLocation%
+Gui, Font, s20
+Gui, Add, Edit, x10 y40 w80 h39 +ReadOnly +Center vWeatherF, %WeatherF%
+Gui, Font, s11
+Gui, Add, Edit, x95 y55 w43 +ReadOnly +Center vWeatherC, %WeatherC%
+Gui, Add, Edit, x193 y55 w125 +ReadOnly +Center vWeatherCondition, %WeatherCondition%
+Gui, Add, Text, x0 y95 w75 +Right, Humidity:
+Gui, Add, Text, x0 y117 w75 +Right, Barometer:
+Gui, Add, Text, x0 y139 w75 +Right, Dewpoint:
+Gui, Add, Text, x0 y161 w75 +Right, Visibility:
+Gui, Add, Text, x0 y183 w75 +Right, Heat Index:
+Gui, Font, s9
+Gui, Add, Edit, x80 y94 w105 +ReadOnly +Left vWeatherHumidity, %WeatherHumidity%
+Gui, Add, Edit, x80 y116 w105 +ReadOnly +Left vWeatherBarometer, %WeatherBarometer%
+Gui, Add, Edit, x80 y138 w105 +ReadOnly +Left vWeatherDewpoint, %WeatherDewpoint%
+Gui, Add, Edit, x80 y160 w105 +ReadOnly +Left vWeatherVisibility, %WeatherVisibility%
+Gui, Add, Edit, x80 y182 w105 +ReadOnly +Left vWeatherHeatIndex, %WeatherHeatIndex%
+Gui, Font, s12
+Gui, Add, Button, x10 y210 gPrevious, Previous
+Gui, Add, Button, x270 y210 gNext, Next
 
 ; initialize objects
 JSONFiles := object()
 PNGFiles := object()
 WeatherArray := object()
 
-; sorts .json files by date created to have them load in correct order
+; sort .json files by date created to have them load in correct order
 Loop, Files, .\Weather Dumps\*.json, R
     FileList = %FileList%%A_LoopFileTimeCreated%-%A_LoopFileLongPath%`n
 Sort, FileList, N
@@ -59,7 +71,7 @@ for index, element in JSONFiles{
 	%day%["Last_update"] := weather.Last_update
 }
 
-; sorts .png files by date created to have them load in correct order
+; sort .png files by date created to have them load in correct order
 Loop, Files, .\Weather Dumps\*.png, R
     FileList = %FileList%%A_LoopFileTimeCreated%-%A_LoopFileLongPath%`n
 Sort, FileList, N
@@ -81,25 +93,11 @@ for index, element in PNGFiles{
 }
 
 ; setup first page
-page := 1
-day := "day" . page
-WeatherDate := %day%["Last_update"]
-GuiControl,, WeatherDate, %WeatherDate%
-ImageLocation := %day%["image"]
-GuiControl,, ImageLocation, %ImageLocation%
-WeatherF := %day%["F"]
-GuiControl,, WeatherF, %WeatherF%
-WeatherC := %day%["C"]
-GuiControl,, WeatherC, %WeatherC%
-WeatherCondition := %day%["Condition"]
-GuiControl,, WeatherCondition, %WeatherCondition%
-
+Populate(1)
 GuiControl, Disable, Previous
-
 Gui, Submit, NoHide
-Gui, Show, w330, Weather Loader v0.2
+Gui, Show, w330, Weather Loader v1.0
 Return
-
 
 
 ; previous button
@@ -109,18 +107,7 @@ Previous:
 		GuiControl, Disable, Previous
 	else
 		GuiControl, Enable, Next
-	
-	day := "day" . page
-	WeatherDate := %day%["Last_update"]
-	GuiControl,, WeatherDate, %WeatherDate%
-	ImageLocation := %day%["image"]
-	GuiControl,, ImageLocation, %ImageLocation%
-	WeatherF := %day%["F"]
-	GuiControl,, WeatherF, %WeatherF%
-	WeatherC := %day%["C"]
-	GuiControl,, WeatherC, %WeatherC%
-	WeatherCondition := %day%["Condition"]
-	GuiControl,, WeatherCondition, %WeatherCondition%
+	Populate(page)
 	Return
 
 ; next button
@@ -130,28 +117,5 @@ Next:
 		GuiControl, Disable, Next
 	else
 		GuiControl, Enable, Previous
-
-	day := "day" . page
-	WeatherDate := %day%["Last_update"]
-	GuiControl,, WeatherDate, %WeatherDate%
-	ImageLocation := %day%["image"]
-	GuiControl,, ImageLocation, %ImageLocation%
-	WeatherF := %day%["F"]
-	GuiControl,, WeatherF, %WeatherF%
-	WeatherC := %day%["C"]
-	GuiControl,, WeatherC, %WeatherC%
-	WeatherCondition := %day%["Condition"]
-	GuiControl,, WeatherCondition, %WeatherCondition%
+	Populate(page)
 	Return
-
-
-; save and reload
-!s::
-Loop{
-	Send ^s
-	Reload
-	Sleep 1000 ; If successful, the reload will close this instance during the Sleep, so the line below will never be reached.
-	MsgBox, 262196, Error, The script could not be reloaded. Would you like to try again?
-	IfMsgBox, No
-	Exit
-}
