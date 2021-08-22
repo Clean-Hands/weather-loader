@@ -97,7 +97,7 @@ for index, element in PNGFiles{
 Populate(1)
 GuiControl, Disable, Previous
 Gui, Submit, NoHide
-Gui, Show, w330, Weather Loader v1.0
+Gui, Show, w330, Weather Loader v1.1
 Return
 
 
