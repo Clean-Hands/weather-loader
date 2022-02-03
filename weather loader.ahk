@@ -31,7 +31,13 @@ Gui, Add, Edit, x80 y160 w105 +ReadOnly +Left vWeatherVisibility, %WeatherVisibi
 Gui, Add, Edit, x80 y182 w105 +ReadOnly +Left vWeatherHeatIndex, %WeatherHeatIndex%
 Gui, Font, s12
 Gui, Add, Button, x10 y210 gPrevious, Previous
+Gui, Add, Button, x89 y210 gFirst, First
+Gui, Add, Button, x222 y210 gLast, Last
 Gui, Add, Button, x270 y210 gNext, Next
+DisableAll()
+Gui, Show, w330, Weather Loader v1.2
+GuiControl,, WeatherDate, Loading...
+Gui, Submit, NoHide
 
 ; initialize objects
 JSONFiles := object()
@@ -39,8 +45,14 @@ PNGFiles := object()
 WeatherArray := object()
 
 ; sort .json files by date created to have them load in correct order
+numOfFiles := 0
+currentFileNum := 0
 Loop, Files, .\Weather Dumps\*.json, R
+{	
+	numOfFiles++
     FileList = %FileList%%A_LoopFileTimeCreated%-%A_LoopFileLongPath%`n
+	GuiControl,, WeatherDate, Locating file %numOfFiles%
+}
 Sort, FileList, N
 Loop, Parse, FileList, `n
 {
@@ -49,13 +61,18 @@ Loop, Parse, FileList, `n
     if (SortedFile){
 		FileRead, CurrentFile, %SortedFile%
 		JSONFiles.Push(CurrentFile)
+		currentFileNum++
+		GuiControl,, WeatherDate, Loading file %currentFileNum%/%numOfFiles%
     }
+	
 }
 ; ^ credit: https://autohotkey.com/board/topic/93779-how-to-sort-folders-by-create-date/?p=590877
 FileList := ""
 
 ; load the .json file information into arrays, one for each day
 for index, element in JSONFiles{
+	numOfFiles := JSONFiles.Length()
+	GuiControl,, WeatherDate, Inputting file %index%/%numOfFiles%
     weather := JSON.Load(element)
 	day := "day" . index
 	%day% := new WeatherArray
@@ -73,8 +90,14 @@ for index, element in JSONFiles{
 }
 
 ; sort .png files by date created to have them load in correct order
+numOfFiles := 0
+currentFileNum := 0
 Loop, Files, .\Weather Dumps\*.png, R
+{
+	numOfFiles++
     FileList = %FileList%%A_LoopFileTimeCreated%-%A_LoopFileLongPath%`n
+	GuiControl,, WeatherDate, Locating image %numOfFiles%
+}
 Sort, FileList, N
 Loop, Parse, FileList, `n
 {
@@ -82,6 +105,8 @@ Loop, Parse, FileList, `n
     SortedFile := SubStr(A_LoopField, SubStrStartingPos + 1)
     if (SortedFile){
 		PNGFiles.Push(SortedFile)
+		currentFileNum++
+		GuiControl,, WeatherDate, Loading image %currentFileNum%/%numOfFiles%
     }
 }
 ; ^ credit: https://autohotkey.com/board/topic/93779-how-to-sort-folders-by-create-date/?p=590877
@@ -95,29 +120,55 @@ for index, element in PNGFiles{
 
 ; setup first page
 Populate(1)
+EnableAll()
 GuiControl, Disable, Previous
 Gui, Submit, NoHide
-Gui, Show, w330, Weather Loader v1.1
 Return
 
 
 ; previous button
 Previous:
 	page--
-	if (page < 2)
+	if (page < 2) {
 		GuiControl, Disable, Previous
-	else
+		GuiControl, Disable, First
+	} else {
 		GuiControl, Enable, Next
+		GuiControl, Enable, Last
+	}
+	Populate(page)
+	Return
+
+; first button
+First:
+	page := 1
+	GuiControl, Disable, First
+	GuiControl, Disable, Previous
+	GuiControl, Enable, Next
+	GuiControl, Enable, Last
+	Populate(page)
+	Return
+
+; last button
+Last:
+	page := JSONFiles.Length()
+	GuiControl, Disable, Last
+	GuiControl, Disable, Next
+	GuiControl, Enable, Previous
+	GuiControl, Enable, First
 	Populate(page)
 	Return
 
 ; next button
 Next:
 	page++
-	if (page >= JSONFiles.Length())
+	if (page >= JSONFiles.Length()) {
 		GuiControl, Disable, Next
-	else
+		GuiControl, Disable, Last
+	} else {
 		GuiControl, Enable, Previous
+		GuiControl, Enable, First
+	}
 	Populate(page)
 	Return
 

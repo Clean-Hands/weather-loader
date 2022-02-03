@@ -26,3 +26,37 @@ Populate(page)
     WeatherCondition := %day%["Condition"]
     GuiControl,, WeatherCondition, %WeatherCondition%
 }
+
+; disables all GUI elements
+DisableAll() {
+    GuiControl, Disable, WeatherF
+    GuiControl, Disable, WeatherC
+    GuiControl, Disable, WeatherHumidity
+    GuiControl, Disable, WeatherBarometer
+    GuiControl, Disable, WeatherDewpoint
+    GuiControl, Disable, WeatherVisibility
+    GuiControl, Disable, WeatherHeatIndex
+    GuiControl, Disable, ImageLocation
+    GuiControl, Disable, WeatherCondition
+    GuiControl, Disable, Previous
+    GuiControl, Disable, Next
+    GuiControl, Disable, First
+    GuiControl, Disable, Last
+}
+
+;enables all GUI elements
+EnableAll() {
+    GuiControl, Enable, WeatherF
+    GuiControl, Enable, WeatherC
+    GuiControl, Enable, WeatherHumidity
+    GuiControl, Enable, WeatherBarometer
+    GuiControl, Enable, WeatherDewpoint
+    GuiControl, Enable, WeatherVisibility
+    GuiControl, Enable, WeatherHeatIndex
+    GuiControl, Enable, ImageLocation
+    GuiControl, Enable, WeatherCondition
+    GuiControl, Enable, Previous
+    GuiControl, Enable, Next
+    GuiControl, Enable, First
+    GuiControl, Enable, Last
+}
