@@ -19,6 +19,10 @@ Populate(page)
     GuiControl,, WeatherDewpoint, %WeatherDewpoint%
     WeatherVisibility := %day%["Visibility"]
     GuiControl,, WeatherVisibility, %WeatherVisibility%
+    WeatherWindSpeed := %day%["Wind_Speed"]
+    GuiControl,, WeatherWindSpeed, %WeatherWindSpeed%
+    WeatherWindChill := %day%["Wind_Chill"]
+    GuiControl,, WeatherWindChill, %WeatherWindChill%
     WeatherHeatIndex := %day%["Heat_Index"]
     GuiControl,, WeatherHeatIndex, %WeatherHeatIndex%
     ImageLocation := %day%["image"]
@@ -35,6 +39,8 @@ DisableAll() {
     GuiControl, Disable, WeatherBarometer
     GuiControl, Disable, WeatherDewpoint
     GuiControl, Disable, WeatherVisibility
+    GuiControl, Disable, WeatherWindSpeed
+    GuiControl, Disable, WeatherWindChill
     GuiControl, Disable, WeatherHeatIndex
     GuiControl, Disable, ImageLocation
     GuiControl, Disable, WeatherCondition
@@ -52,6 +58,8 @@ EnableAll() {
     GuiControl, Enable, WeatherBarometer
     GuiControl, Enable, WeatherDewpoint
     GuiControl, Enable, WeatherVisibility
+    GuiControl, Enable, WeatherWindSpeed
+    GuiControl, Enable, WeatherWindChill
     GuiControl, Enable, WeatherHeatIndex
     GuiControl, Enable, ImageLocation
     GuiControl, Enable, WeatherCondition
